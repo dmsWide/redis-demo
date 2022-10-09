@@ -3,6 +3,7 @@ package com.dmswide.controller;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -50,5 +51,21 @@ public class RedisController {
     @GetMapping("/redis_1/{k1}")
     public String getStringV(@PathVariable(value = "k1") String k){
         return "key是: " + " 值是: " + stringRedisTemplate.opsForValue().get(k);
+    }
+
+    /**
+     * 设置RedisTemplate的序列化机制
+     * 可以单独设置key或value的序列化
+     * 也可以同时设置key和value的序列化
+     */
+
+    @PostMapping("/redis_2/{k}/{v}")
+    public String addStringToRedis(@PathVariable(value = "k") String key,
+                                   @PathVariable(value = "v") String value){
+        //设置key和value的序列化
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.opsForValue().set(key,value);
+        return "设置redisTemplate的key和value的系列化机制";
     }
 }
