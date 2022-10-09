@@ -1,8 +1,10 @@
 package com.dmswide.controller;
 
+import com.dmswide.entity.Student;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,5 +69,30 @@ public class RedisController {
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.opsForValue().set(key,value);
         return "设置redisTemplate的key和value的系列化机制";
+    }
+
+    /**
+     * 使用json序列化，将javabean对象序列化为json字符串
+     */
+
+    @PostMapping("/redis_3/json")
+    public String addJson(){
+        Student student = new Student();
+        student.setId(0001);
+        student.setName("sunquan");
+        student.setAge(20);
+
+        //设置序列化
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(Student.class));
+        redisTemplate.opsForValue().set("stu",student);
+        return "使用了json序列化机制";
+    }
+
+    @GetMapping("/redis_3/getJson/{key}")
+    public String getJson(@PathVariable(value = "key") String key){
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(Student.class));
+        return "反序列化的结果是: " + redisTemplate.opsForValue().get(key);
     }
 }
